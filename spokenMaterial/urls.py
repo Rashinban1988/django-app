@@ -1,7 +1,12 @@
 from django.urls import path, include
-from .views import TranscriptionViewSet
+from .views import UploadedFileViewSet, TranscriptionViewSet
 
 urlpatterns = [
+    # UploadedFileの一覧を取得するためのパス
+    path('uploaded-files/', UploadedFileViewSet.as_view({
+        'get': 'list',
+    }), name='uploaded-files-list'),
+
     # UploadedFileのIDに紐づいたTranscriptionの一覧を取得するための新しいパス
     path('transcriptions/uploaded-file/<int:uploadedfile_id>/', TranscriptionViewSet.as_view({
         'get': 'list'
