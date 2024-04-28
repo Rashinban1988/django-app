@@ -1,3 +1,5 @@
 RewriteEngine On
-RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_URI} !index\.cgi
+RewriteCond %{REQUEST_URI} !(^/static/)
+RewriteCond %{REQUEST_URI} !(^/media/)
 RewriteRule ^(.*)$ /index.cgi/$1 [QSA,L]

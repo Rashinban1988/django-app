@@ -28,8 +28,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -127,6 +125,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'static') # collectstatic で集めたファイルを配置する場所
+
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, ''),
+# ] # 各アプリケーションのstatic以外に配信するディレクトリがある場合に追加する
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

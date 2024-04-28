@@ -4,5 +4,5 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include('testapp.urls')),
-    # path('api/spokenMaterial/', include('spokenMaterial.urls')),
+    # path('spokenMaterial/', include('spokenMaterial.urls')),
 ]
