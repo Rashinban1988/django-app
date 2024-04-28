@@ -83,7 +83,7 @@ DATABASES = {
         'NAME': config('DB_NAME') if config('DB_NAME') else 'rasheen88_service',
         'USER': config('DB_USER') if config('DB_USER') else 'rasheen88_kz',
         'PASSWORD': config('DB_PASSWORD') if config('DB_PASSWORD') else 'otomamay9315',
-        'HOST': config('DB_HOST') if config('DB_HOST') else '127.0.0.1', # config('DB_HOST') if config('DB_HOST') else 'mysql1.php.xdomain.ne.jp',
+        'HOST': config('DB_HOST') if config('DB_HOST') else '127.0.0.1',
         'PORT': config('DB_PORT') if config('DB_PORT') else '3306',
         'OPTIONS': {
             'charset': 'utf8mb4',
