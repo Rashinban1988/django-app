@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0  # MySQLのバージョンを8.0に更新
+    platform: linux/amd64
+    volumes:
+      - mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: rasheen88_service
+      MYSQL_USER: rasheen88_kz
+      MYSQL_PASSWORD: otomamay9315
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "3306:3306"
+
+  web:
+    build: .
+    platform: linux/amd64
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      DATABASE_HOST: db
+      DATABASE_NAME: rasheen88_service
+      DATABASE_USER: rasheen88_kz
+      DATABASE_PASSWORD: otomamay9315
+      DJANGO_SECRET_KEY: django-insecure-ocx*s^zcv6z0cnm%tqvcxodens3awg67*^77i6_6v4$96l1+wi
+
+volumes:
+  mysql-data:
