@@ -1,0 +1,46 @@
+(0.000) 
+                SELECT VERSION(),
+                       @@sql_mode,
+                       @@default_storage_engine,
+                       @@sql_auto_is_null,
+                       @@lower_case_table_names,
+                       CONVERT_TZ('2001-01-01 01:00:00', 'UTC', 'UTC') IS NOT NULL
+            ; args=None; alias=default
+(0.000) 
+                SELECT VERSION(),
+                       @@sql_mode,
+                       @@default_storage_engine,
+                       @@sql_auto_is_null,
+                       @@lower_case_table_names,
+                       CONVERT_TZ('2001-01-01 01:00:00', 'UTC', 'UTC') IS NOT NULL
+            ; args=None; alias=default
+(0.000) SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED; args=None; alias=default
+(0.000) SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED; args=None; alias=default
+(0.000) SELECT `django_session`.`session_key`, `django_session`.`session_data`, `django_session`.`expire_date` FROM `django_session` WHERE (`django_session`.`expire_date` > '2024-04-28 01:21:54.342483' AND `django_session`.`session_key` = '9ftylzsd5eonxo2eeh03enthv2ybgakq') LIMIT 21; args=('2024-04-28 01:21:54.342483', '9ftylzsd5eonxo2eeh03enthv2ybgakq'); alias=default
+(0.000) SELECT `django_session`.`session_key`, `django_session`.`session_data`, `django_session`.`expire_date` FROM `django_session` WHERE (`django_session`.`expire_date` > '2024-04-28 01:21:54.342483' AND `django_session`.`session_key` = '9ftylzsd5eonxo2eeh03enthv2ybgakq') LIMIT 21; args=('2024-04-28 01:21:54.342483', '9ftylzsd5eonxo2eeh03enthv2ybgakq'); alias=default
+(0.000) SELECT `auth_user`.`id`, `auth_user`.`password`, `auth_user`.`last_login`, `auth_user`.`is_superuser`, `auth_user`.`username`, `auth_user`.`first_name`, `auth_user`.`last_name`, `auth_user`.`email`, `auth_user`.`is_staff`, `auth_user`.`is_active`, `auth_user`.`date_joined` FROM `auth_user` WHERE `auth_user`.`id` = 1 LIMIT 21; args=(1,); alias=default
+(0.000) SELECT `auth_user`.`id`, `auth_user`.`password`, `auth_user`.`last_login`, `auth_user`.`is_superuser`, `auth_user`.`username`, `auth_user`.`first_name`, `auth_user`.`last_name`, `auth_user`.`email`, `auth_user`.`is_staff`, `auth_user`.`is_active`, `auth_user`.`date_joined` FROM `auth_user` WHERE `auth_user`.`id` = 1 LIMIT 21; args=(1,); alias=default
+(0.001) 
+                SELECT VERSION(),
+                       @@sql_mode,
+                       @@default_storage_engine,
+                       @@sql_auto_is_null,
+                       @@lower_case_table_names,
+                       CONVERT_TZ('2001-01-01 01:00:00', 'UTC', 'UTC') IS NOT NULL
+            ; args=None; alias=default
+(0.001) 
+                SELECT VERSION(),
+                       @@sql_mode,
+                       @@default_storage_engine,
+                       @@sql_auto_is_null,
+                       @@lower_case_table_names,
+                       CONVERT_TZ('2001-01-01 01:00:00', 'UTC', 'UTC') IS NOT NULL
+            ; args=None; alias=default
+(0.000) SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED; args=None; alias=default
+(0.000) SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED; args=None; alias=default
+(0.000) SELECT `django_session`.`session_key`, `django_session`.`session_data`, `django_session`.`expire_date` FROM `django_session` WHERE (`django_session`.`expire_date` > '2024-04-28 01:22:20.391034' AND `django_session`.`session_key` = '9ftylzsd5eonxo2eeh03enthv2ybgakq') LIMIT 21; args=('2024-04-28 01:22:20.391034', '9ftylzsd5eonxo2eeh03enthv2ybgakq'); alias=default
+(0.000) SELECT `django_session`.`session_key`, `django_session`.`session_data`, `django_session`.`expire_date` FROM `django_session` WHERE (`django_session`.`expire_date` > '2024-04-28 01:22:20.391034' AND `django_session`.`session_key` = '9ftylzsd5eonxo2eeh03enthv2ybgakq') LIMIT 21; args=('2024-04-28 01:22:20.391034', '9ftylzsd5eonxo2eeh03enthv2ybgakq'); alias=default
+(0.000) SELECT `auth_user`.`id`, `auth_user`.`password`, `auth_user`.`last_login`, `auth_user`.`is_superuser`, `auth_user`.`username`, `auth_user`.`first_name`, `auth_user`.`last_name`, `auth_user`.`email`, `auth_user`.`is_staff`, `auth_user`.`is_active`, `auth_user`.`date_joined` FROM `auth_user` WHERE `auth_user`.`id` = 1 LIMIT 21; args=(1,); alias=default
+(0.000) SELECT `auth_user`.`id`, `auth_user`.`password`, `auth_user`.`last_login`, `auth_user`.`is_superuser`, `auth_user`.`username`, `auth_user`.`first_name`, `auth_user`.`last_name`, `auth_user`.`email`, `auth_user`.`is_staff`, `auth_user`.`is_active`, `auth_user`.`date_joined` FROM `auth_user` WHERE `auth_user`.`id` = 1 LIMIT 21; args=(1,); alias=default
+(0.000) SELECT `django_admin_log`.`id`, `django_admin_log`.`action_time`, `django_admin_log`.`user_id`, `django_admin_log`.`content_type_id`, `django_admin_log`.`object_id`, `django_admin_log`.`object_repr`, `django_admin_log`.`action_flag`, `django_admin_log`.`change_message`, `auth_user`.`id`, `auth_user`.`password`, `auth_user`.`last_login`, `auth_user`.`is_superuser`, `auth_user`.`username`, `auth_user`.`first_name`, `auth_user`.`last_name`, `auth_user`.`email`, `auth_user`.`is_staff`, `auth_user`.`is_active`, `auth_user`.`date_joined`, `django_content_type`.`id`, `django_content_type`.`app_label`, `django_content_type`.`model` FROM `django_admin_log` INNER JOIN `auth_user` ON (`django_admin_log`.`user_id` = `auth_user`.`id`) LEFT OUTER JOIN `django_content_type` ON (`django_admin_log`.`content_type_id` = `django_content_type`.`id`) WHERE `django_admin_log`.`user_id` = 1 ORDER BY `django_admin_log`.`action_time` DESC LIMIT 10; args=(1,); alias=default
+(0.000) SELECT `django_admin_log`.`id`, `django_admin_log`.`action_time`, `django_admin_log`.`user_id`, `django_admin_log`.`content_type_id`, `django_admin_log`.`object_id`, `django_admin_log`.`object_repr`, `django_admin_log`.`action_flag`, `django_admin_log`.`change_message`, `auth_user`.`id`, `auth_user`.`password`, `auth_user`.`last_login`, `auth_user`.`is_superuser`, `auth_user`.`username`, `auth_user`.`first_name`, `auth_user`.`last_name`, `auth_user`.`email`, `auth_user`.`is_staff`, `auth_user`.`is_active`, `auth_user`.`date_joined`, `django_content_type`.`id`, `django_content_type`.`app_label`, `django_content_type`.`model` FROM `django_admin_log` INNER JOIN `auth_user` ON (`django_admin_log`.`user_id` = `auth_user`.`id`) LEFT OUTER JOIN `django_content_type` ON (`django_admin_log`.`content_type_id` = `django_content_type`.`id`) WHERE `django_admin_log`.`user_id` = 1 ORDER BY `django_admin_log`.`action_time` DESC LIMIT 10; args=(1,); alias=default
