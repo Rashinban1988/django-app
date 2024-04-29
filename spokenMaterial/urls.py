@@ -5,7 +5,7 @@ urlpatterns = [
     # UploadedFileの一覧を取得と新規作成を行うためのパス
     path('uploaded-files/', UploadedFileViewSet.as_view({
         'get': 'list',
-        # 'post': 'create'
+        'post': 'create'
     }), name='uploaded-files-list'),
 
     # UploadedFileの詳細を取得するためのパス

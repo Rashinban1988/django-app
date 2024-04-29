@@ -6,7 +6,8 @@ from .models import UploadedFile, Transcription
 from .serializers import UploadedFileSerializer, TranscriptionSerializer
 from pydub import AudioSegment
 from celery import shared_task
-import warnings, os, logging, whisper
+import warnings, os, logging, wave, numpy as np, json
+from vosk import Model, KaldiRecognizer
 
 class UploadedFileViewSet(viewsets.ModelViewSet):
     queryset = UploadedFile.objects.all()
@@ -80,14 +81,12 @@ def handle_uploaded_file(f):
 @shared_task
 def transcribe_and_save_async(file_path, uploaded_file_id):
     logger = logging.getLogger(__name__)
-
-    # Whisperモデルのロード
-    model = whisper.load_model("small")
+    model_path = 'models/vosk-model-small-ja-0.22'
+    model = Model(model_path)
 
     logger.debug("文字起こし処理がリクエストされました。")
     logger.debug(f"ファイルパス: {file_path}")
 
-    # 入力ファイルの読み込み
     file_path = os.path.join('/code', file_path)
     file_extension = os.path.splitext(file_path)[1].lower()
     if file_extension in [".wav", ".mp3", ".m4a", ".mp4"]:
@@ -95,36 +94,34 @@ def transcribe_and_save_async(file_path, uploaded_file_id):
     else:
         raise ValueError("サポートされていない音声形式です。")
 
-    # 分割する時間間隔（15秒）
     split_interval = 15 * 1000  # ミリ秒単位
 
-    # 音声ファイルを分割して文字起こし
     for i, start_time in enumerate(range(0, len(audio), split_interval)):
         end_time = min(start_time + split_interval, len(audio))
         split_audio = audio[start_time:end_time]
-
-        # 分割した音声を一時ファイルに保存
         temp_file_path = f"temp_{i}.wav"
         split_audio.export(temp_file_path, format="wav")
 
-        # 文字起こし
-        try:
-            result = model.transcribe(temp_file_path)
-            transcription_text = result["text"]
+        with wave.open(temp_file_path, 'rb') as wf:
+            rec = KaldiRecognizer(model, wf.getframerate())
+            while True:
+                data = wf.readframes(4000)
+                if len(data) == 0:
+                    break
+                if rec.AcceptWaveform(data):
+                    pass
 
-            # 文字起こし結果をTranscriptionsテーブルに保存
-            serializer_class = TranscriptionSerializer(data={
-                "start_time": start_time / 1000,  # 秒単位に変換
-                "text": transcription_text,
-                "uploaded_file": uploaded_file_id,
-            })
-            if serializer_class.is_valid():
-                serializer_class.save()
-            else:
-                logger.error(f"文字起こし結果の保存に失敗しました: {serializer_class.errors}")
+            result = json.loads(rec.FinalResult())
+            transcription_text = result['text'] if 'text' in result else ''
 
-        except Exception as e:
-            print(f"エラーが発生しました: {e}")
-        finally:
-            # 一時ファイルの削除
-            os.remove(temp_file_path)
+        serializer_class = TranscriptionSerializer(data={
+            "start_time": start_time / 1000,  # 秒単位に変換
+            "text": transcription_text,
+            "uploaded_file": uploaded_file_id,
+        })
+        if serializer_class.is_valid():
+            serializer_class.save()
+        else:
+            logger.error(f"文字起こし結果の保存に失敗しました: {serializer_class.errors}")
+
+        os.remove(temp_file_path)
