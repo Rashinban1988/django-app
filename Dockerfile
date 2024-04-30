@@ -8,6 +8,9 @@ ENV PYTHONUNBUFFERED 1
 # 作業ディレクトリを設定
 WORKDIR /code
 
+# OSパッケージの更新とffmpegのインストール
+RUN apt-get update && apt-get install -y ffmpeg
+
 # 依存関係のインストール
 COPY requirements.txt /code/
 RUN pip install -r requirements.txt

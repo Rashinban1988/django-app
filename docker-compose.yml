@@ -31,5 +31,13 @@ services:
       DATABASE_PASSWORD: otomamay9315
       DJANGO_SECRET_KEY: django-insecure-ocx*s^zcv6z0cnm%tqvcxodens3awg67*^77i6_6v4$96l1+wi
 
+  redis:
+    image: redis:latest
+    container_name: redis2
+    restart: always
+    tty: true
+    ports:
+      - 6389:6379
+
 volumes:
   mysql-data:
