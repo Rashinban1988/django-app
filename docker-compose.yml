@@ -11,6 +11,9 @@ services:
       MYSQL_USER: rasheen88_kz
       MYSQL_PASSWORD: otomamay9315
       MYSQL_ROOT_PASSWORD: rootpassword
+      # 文字セットと照合順序の設定
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_unicode_ci
     ports:
       - "3306:3306"
 
