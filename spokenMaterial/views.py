@@ -82,46 +82,57 @@ def handle_uploaded_file(f):
 def transcribe_and_save_async(file_path, uploaded_file_id):
     logger = logging.getLogger(__name__)
     model_path = 'models/vosk-model-small-ja-0.22'
-    model = Model(model_path)
+    try:
+        model = Model(model_path)
+    except Exception as e:
+        logger.error(f"モデルのロードに失敗しました: {e}")
+        return
 
     logger.debug("文字起こし処理がリクエストされました。")
     logger.debug(f"ファイルパス: {file_path}")
 
-    file_path = os.path.join('/code', file_path)
-    file_extension = os.path.splitext(file_path)[1].lower()
-    if file_extension in [".wav", ".mp3", ".m4a", ".mp4"]:
-        audio = AudioSegment.from_file(file_path, format=file_extension.replace(".", ""))
-    else:
-        raise ValueError("サポートされていない音声形式です。")
+    try:
+        file_path = os.path.join('/code', file_path)
+        file_extension = os.path.splitext(file_path)[1].lower()
+        if file_extension in [".wav", ".mp3", ".m4a", ".mp4"]:
+            audio = AudioSegment.from_file(file_path, format=file_extension.replace(".", ""))
+        else:
+            raise ValueError("サポートされていない音声形式です。")
+    except Exception as e:
+        logger.error(f"ファイルの読み込みに失敗しました: {e}")
+        return
 
     split_interval = 15 * 1000  # ミリ秒単位
 
-    for i, start_time in enumerate(range(0, len(audio), split_interval)):
-        end_time = min(start_time + split_interval, len(audio))
-        split_audio = audio[start_time:end_time]
-        temp_file_path = f"temp_{i}.wav"
-        split_audio.export(temp_file_path, format="wav")
+    try:
+        for i, start_time in enumerate(range(0, len(audio), split_interval)):
+            end_time = min(start_time + split_interval, len(audio))
+            split_audio = audio[start_time:end_time]
+            temp_file_path = f"temp_{i}.wav"
+            split_audio.export(temp_file_path, format="wav")
 
-        with wave.open(temp_file_path, 'rb') as wf:
-            rec = KaldiRecognizer(model, wf.getframerate())
-            while True:
-                data = wf.readframes(4000)
-                if len(data) == 0:
-                    break
-                if rec.AcceptWaveform(data):
-                    pass
+            with wave.open(temp_file_path, 'rb') as wf:
+                rec = KaldiRecognizer(model, wf.getframerate())
+                while True:
+                    data = wf.readframes(4000)
+                    if len(data) == 0:
+                        break
+                    if rec.AcceptWaveform(data):
+                        pass
 
-            result = json.loads(rec.FinalResult())
-            transcription_text = result['text'] if 'text' in result else ''
+                result = json.loads(rec.FinalResult())
+                transcription_text = result['text'] if 'text' in result else ''
 
-        serializer_class = TranscriptionSerializer(data={
-            "start_time": start_time / 1000,  # 秒単位に変換
-            "text": transcription_text,
-            "uploaded_file": uploaded_file_id,
-        })
-        if serializer_class.is_valid():
-            serializer_class.save()
-        else:
-            logger.error(f"文字起こし結果の保存に失敗しました: {serializer_class.errors}")
+            serializer_class = TranscriptionSerializer(data={
+                "start_time": start_time / 1000,  # 秒単位に変換
+                "text": transcription_text,
+                "uploaded_file": uploaded_file_id,
+            })
+            if serializer_class.is_valid():
+                serializer_class.save()
+            else:
+                logger.error(f"文字起こし結果の保存に失敗しました: {serializer_class.errors}")
 
-        os.remove(temp_file_path)
+            os.remove(temp_file_path)
+    except Exception as e:
+        logger.error(f"文字起こし処理中にエラーが発生しました: {e}")
