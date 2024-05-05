@@ -169,20 +169,20 @@ CACHES = {
     }
 }
 
-# Celery configurations
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'  # スペルミスを修正しました
+# # Celery configurations
+# CELERY_ACCEPT_CONTENT = ['json']
+# CELERY_TASK_SERIALIZER = 'json'
+# CELERY_RESULT_SERIALIZER = 'json'  # スペルミスを修正しました
 
-# Redisをローカルで実行している場合のURL
-CELERY_BROKER_URL = "redis://127.0.0.1:6379"
-CELERY_CACHE_BACKEND = "django-cache"
-CELERY_RESULT_EXTENDED = True
+# # Redisをローカルで実行している場合のURL
+# CELERY_BROKER_URL = "redis://127.0.0.1:6379"
+# CELERY_CACHE_BACKEND = "django-cache"
+# CELERY_RESULT_EXTENDED = True
 
-# CELERYD_CONCURRENCYはCPUのコア数に応じて調整可能
-CELERYD_CONCURRENCY = 1
+# # CELERYD_CONCURRENCYはCPUのコア数に応じて調整可能
+# CELERYD_CONCURRENCY = 1
 
-CELERYD_LOG_FILE = "./celeryd.log"
+# CELERYD_LOG_FILE = "./celeryd.log"
 
-# ログレベルをINFOに設定
-CELERYD_LOG_LEVEL = "INFO"
+# # ログレベルをINFOに設定
+# CELERYD_LOG_LEVEL = "INFO"
