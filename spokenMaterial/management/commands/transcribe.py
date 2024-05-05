@@ -1,11 +1,11 @@
 from django.core.management.base import BaseCommand
-from spokenMaterial.views import transcribe_and_save
 from spokenMaterial.models import UploadedFile
 
 class Command(BaseCommand):
     help = '音声ファイルを文字起こしする'
 
     def handle(self, *args, **options):
+        from spokenMaterial.views import transcribe_and_save
         # transcriptionを持っていないuploaded_fileを取得
         uploaded_files = UploadedFile.objects.filter(transcription__isnull=True, status=0)
 

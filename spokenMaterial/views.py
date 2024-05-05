@@ -8,6 +8,9 @@ from pydub import AudioSegment
 from celery import shared_task
 import warnings, os, logging, wave, numpy as np, json
 from vosk import Model, KaldiRecognizer
+from django.http import JsonResponse
+from django.views import View
+from .management.commands.transcribe import Command as TranscribeCommand
 
 class UploadedFileViewSet(viewsets.ModelViewSet):
     queryset = UploadedFile.objects.all()
@@ -21,15 +24,16 @@ class UploadedFileViewSet(viewsets.ModelViewSet):
         file_serializer = UploadedFileSerializer(data=request.data)
         if file_serializer.is_valid():
             uploaded_file = file_serializer.save() # UploadedFileモデルにファイル情報を保存
+            # アップロードされたファイル名から最後の/以降を取得
+            file_name = uploaded_file.file.name.split('/')[-1]
             # 一時ファイルとして保存
             file_obj = request.FILES['file']
-            # 'temp' ディレクトリとアップロードされたファイルの名前を結合してパスを作成
-            temp_file_path = os.path.join('uploads', file_obj.name)
+            temp_file_path = os.path.join('uploads', file_name)
             with open(temp_file_path, 'wb+') as destination:
                 for chunk in file_obj.chunks():
                     destination.write(chunk)
 
-            logger.debug(f"一時ファイルを保存しました: {uploaded_file.file.name}")
+            logger.debug(f"一時ファイルを保存しました: {temp_file_path}")
 
             # 文字起こし処理を非同期で実行 Celeryを使う場合
             # transcribe_and_save_async.delay(temp_file_path, uploaded_file.id)
@@ -58,6 +62,12 @@ class TranscriptionViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(uploaded_file__id=uploadedfile_id)
         return queryset
 
+class TranscribeView(View):
+    def get(self, request, *args, **kwargs):
+        command = TranscribeCommand()
+        command.handle()
+        return JsonResponse({'status': 'transcription started'})
+
 # FP16に関するワーニングを無視
 warnings.filterwarnings("ignore", message="FP16 is not supported on CPU; using FP32 instead")
 
@@ -85,7 +95,8 @@ def transcribe_and_save(file_path, uploaded_file_id):
     logger.debug("文字起こし処理が非同期で開始されました。")
     logger.debug(f"ファイルパス: {file_path}")
     logger.debug(f"アップロードされたファイルのID: {uploaded_file_id}")
-    model_path = 'models/vosk-model-small-ja-0.22'
+    base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    model_path = os.path.join(base_path, 'models/vosk-model-ja-0.22')
     try:
         model = Model(model_path)
     except Exception as e:
