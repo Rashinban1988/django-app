@@ -6,6 +6,7 @@ import os
 
 class UploadedFile(models.Model):
     file = models.FileField(upload_to='uploads/')
+    status = models.IntegerField(default=0)  # 0: 未処理, 1: 処理中, 2: 処理済み, 3: エラー
     # その他の必要なフィールド
     def __str__(self):
         return self.file.name

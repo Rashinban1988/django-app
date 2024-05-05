@@ -31,8 +31,8 @@ class UploadedFileViewSet(viewsets.ModelViewSet):
 
             logger.debug(f"一時ファイルを保存しました: {uploaded_file.file.name}")
 
-            # 文字起こし処理を非同期で実行
-            transcribe_and_save_async.delay(temp_file_path, uploaded_file.id)
+            # 文字起こし処理を非同期で実行 Celeryを使う場合
+            # transcribe_and_save_async.delay(temp_file_path, uploaded_file.id)
 
             return Response(file_serializer.data, status=status.HTTP_202_ACCEPTED)
         else:
@@ -78,9 +78,13 @@ def handle_uploaded_file(f):
         for chunk in f.chunks():
             destination.write(chunk)
 
-@shared_task
-def transcribe_and_save_async(file_path, uploaded_file_id):
+# @shared_task # Celeryを使う場合コメントアウトを外す
+# def transcribe_and_save_async(file_path, uploaded_file_id):
+def transcribe_and_save(file_path, uploaded_file_id):
     logger = logging.getLogger(__name__)
+    logger.debug("文字起こし処理が非同期で開始されました。")
+    logger.debug(f"ファイルパス: {file_path}")
+    logger.debug(f"アップロードされたファイルのID: {uploaded_file_id}")
     model_path = 'models/vosk-model-small-ja-0.22'
     try:
         model = Model(model_path)
