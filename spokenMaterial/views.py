@@ -81,6 +81,9 @@ def handle_uploaded_file(f):
 @shared_task
 def transcribe_and_save_async(file_path, uploaded_file_id):
     logger = logging.getLogger(__name__)
+    logger.debug("文字起こし処理が非同期で開始されました。")
+    logger.debug(f"ファイルパス: {file_path}")
+    logger.debug(f"アップロードされたファイルのID: {uploaded_file_id}")
     model_path = 'models/vosk-model-small-ja-0.22'
     try:
         model = Model(model_path)
