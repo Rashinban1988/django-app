@@ -85,11 +85,11 @@ WSGI_APPLICATION = 'xserver.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': config('DB_NAME') if config('DB_NAME') else 'rasheen88_service',
-        'USER': config('DB_USER') if config('DB_USER') else 'rasheen88_kz',
-        'PASSWORD': config('DB_PASSWORD') if config('DB_PASSWORD') else 'otomamay9315',
-        'HOST': config('DB_HOST') if config('DB_HOST') else '127.0.0.1',
-        'PORT': config('DB_PORT') if config('DB_PORT') else '3306',
+        'NAME': 'rasheen88_service',
+        'USER': 'rasheen88_kz',
+        'PASSWORD': 'otomamay9315',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
         'OPTIONS': {
             'charset': 'utf8mb4',
         },
@@ -165,7 +165,7 @@ LOGGING = {
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': 'redis://redis',
+        'LOCATION': 'redis://127.0.0.1:6379',
     }
 }
 
@@ -175,7 +175,7 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'  # スペルミスを修正しました
 
 # Redisをローカルで実行している場合のURL
-CELERY_BROKER_URL = "redis://redis"
+CELERY_BROKER_URL = "redis://127.0.0.1:6379"
 CELERY_CACHE_BACKEND = "django-cache"
 CELERY_RESULT_EXTENDED = True
 
