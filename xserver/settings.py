@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-ocx*s^zcv6z0cnm%tqvcxodens3awg67*^77i6_6v4$96l1+wi
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'https://nextjs14-gud257rcs-rashinban1988s-projects.vercel.app/'
+    'nextjs14-gud257rcs-rashinban1988s-projects.vercel.app/'
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
