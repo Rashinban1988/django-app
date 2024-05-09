@@ -27,7 +27,9 @@ SECRET_KEY = 'django-insecure-ocx*s^zcv6z0cnm%tqvcxodens3awg67*^77i6_6v4$96l1+wi
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    'https://nextjs14-gud257rcs-rashinban1988s-projects.vercel.app/'
+]
 
 CORS_ALLOW_ALL_ORIGINS = True
 
@@ -141,7 +143,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static') # collectstatic で集めたフ�
 
 # settings.py
 MEDIA_URL = '/media/'
-# MEDIA_ROOT = '/home/rasheen88/rakumanu.com/public_html/django-app.rakumanu.com/uploads'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
