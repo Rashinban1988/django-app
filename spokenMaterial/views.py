@@ -24,19 +24,6 @@ class UploadedFileViewSet(viewsets.ModelViewSet):
         file_serializer = UploadedFileSerializer(data=request.data)
         if file_serializer.is_valid():
             uploaded_file = file_serializer.save() # UploadedFileモデルにファイル情報を保存
-            # アップロードされたファイル名から最後の/以降を取得
-            file_name = uploaded_file.file.name.split('/')[-1]
-
-            # 不要なファイルパスをフィルタリング
-            if "rakumanu.com/public_html" in file_name:
-                logger.error("許可されていないファイルパスです。")
-                return Response({"error": "Invalid file path"}, status=status.HTTP_400_BAD_REQUEST)
-
-            file_obj = request.FILES['file']
-            temp_file_path = os.path.join('media', file_name)
-            with open(temp_file_path, 'wb+') as destination:
-                for chunk in file_obj.chunks():
-                    destination.write(chunk)
 
             # 文字起こし処理を非同期で実行 Celeryを使う場合
             # transcribe_and_save_async.delay(temp_file_path, uploaded_file.id)
