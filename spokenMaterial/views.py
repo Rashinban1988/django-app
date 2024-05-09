@@ -28,7 +28,7 @@ class UploadedFileViewSet(viewsets.ModelViewSet):
             file_name = uploaded_file.file.name.split('/')[-1]
             # 一時ファイルとして保存
             file_obj = request.FILES['file']
-            temp_file_path = os.path.join('uploads', file_name)
+            temp_file_path = os.path.join('media', file_name)
             with open(temp_file_path, 'wb+') as destination:
                 for chunk in file_obj.chunks():
                     destination.write(chunk)

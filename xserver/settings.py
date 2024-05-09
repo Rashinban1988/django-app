@@ -138,6 +138,11 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static') # collectstatic で集めたフ�
 #     os.path.join(BASE_DIR, ''),
 # ] # 各アプリケーションのstatic以外に配信するディレクトリがある場合に追加する
 
+# settings.py
+MEDIA_URL = '/media/'
+# MEDIA_ROOT = '/home/rasheen88/rakumanu.com/public_html/django-app.rakumanu.com/uploads'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
