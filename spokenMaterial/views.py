@@ -1,16 +1,23 @@
-# views.py
-from rest_framework import viewsets, status
-from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework.response import Response
-from .models import UploadedFile, Transcription
-from .serializers import UploadedFileSerializer, TranscriptionSerializer
-from pydub import AudioSegment
+import json
+import logging
+import os
+import warnings
+import wave
+
+import numpy as np
 from celery import shared_task
-import warnings, os, logging, wave, numpy as np, json
-from vosk import Model, KaldiRecognizer
 from django.http import JsonResponse
 from django.views import View
+from pydub import AudioSegment
+from rest_framework import status, viewsets
+from rest_framework.parsers import FormParser, MultiPartParser
+from rest_framework.response import Response
+from vosk import KaldiRecognizer, Model
+
 from .management.commands.transcribe import Command as TranscribeCommand
+from .models import Transcription, UploadedFile
+from .serializers import TranscriptionSerializer, UploadedFileSerializer
+import noisereduce as nr
 
 class UploadedFileViewSet(viewsets.ModelViewSet):
     queryset = UploadedFile.objects.all()
@@ -82,34 +89,40 @@ def handle_uploaded_file(f):
 # def transcribe_and_save_async(file_path, uploaded_file_id):
 def transcribe_and_save(file_path, uploaded_file_id):
     logger = logging.getLogger(__name__)
-    logger.debug("文字起こし処理が非同期で開始されました。")
+    logger.debug("文字起こし処理がリクエストされました。")
     logger.debug(f"ファイルパス: {file_path}")
-    logger.debug(f"アップロードされたファイルのID: {uploaded_file_id}")
-    base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    model_path = os.path.join(base_path, 'models/vosk-model-ja-0.22')
+
+    # モデルのロード
     try:
+        base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        model_path = os.path.join(base_path, 'models/vosk-model-ja-0.22')
         model = Model(model_path)
     except Exception as e:
         logger.error(f"モデルのロードに失敗しました: {e}")
         return
 
-    logger.debug("文字起こし処理がリクエストされました。")
-    logger.debug(f"ファイルパス: {file_path}")
-
+    # 音声ファイルの読み込み
     try:
         file_path = os.path.join('/code', file_path)
         file_extension = os.path.splitext(file_path)[1].lower()
         if file_extension in [".wav", ".mp3", ".m4a", ".mp4"]:
             audio = AudioSegment.from_file(file_path, format=file_extension.replace(".", ""))
+            # 音声の正規化と増幅（音声のボリュームを均一化）
+            audio = AudioSegment.from_file(file_path, format=file_extension.replace(".", ""))
+            audio = audio.normalize()  # ここで normalize メソッドを使用
+            # ノイズリダクション（音声のノイズを減らす）
+            audio_np = np.array(audio.get_array_of_samples())
+            reduced_noise_audio_np = nr.reduce_noise(y=audio_np, sr=audio.frame_rate)
+            # 音声の感度を調整
+            audio = AudioSegment(reduced_noise_audio_np.tobytes(), frame_rate=audio.frame_rate, sample_width=audio.sample_width, channels=audio.channels)
         else:
             raise ValueError("サポートされていない音声形式です。")
     except Exception as e:
         logger.error(f"ファイルの読み込みに失敗しました: {e}")
         return
 
-    split_interval = 15 * 1000  # ミリ秒単位
-
     try:
+        split_interval = 15 * 1000  # ミリ秒単位
         for i, start_time in enumerate(range(0, len(audio), split_interval)):
             end_time = min(start_time + split_interval, len(audio))
             split_audio = audio[start_time:end_time]
