@@ -12,6 +12,7 @@ from pydub import AudioSegment
 from rest_framework import status, viewsets
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
+from urllib.parse import unquote
 from vosk import KaldiRecognizer, Model
 
 from .management.commands.transcribe import Command as TranscribeCommand
@@ -27,6 +28,11 @@ class UploadedFileViewSet(viewsets.ModelViewSet):
         # ロガーを取得
         logger = logging.getLogger(__name__)
         logger.debug("ファイルアップロードがリクエストされました。")
+
+        # リクエストデータのファイル名をデコード
+        if 'file' in request.data:
+            request.data['file'] = unquote(request.data['file'])
+
         file_serializer = UploadedFileSerializer(data=request.data)
         if file_serializer.is_valid():
             uploaded_file = file_serializer.save() # UploadedFileモデルにファイル情報を保存
