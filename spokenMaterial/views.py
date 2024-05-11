@@ -24,6 +24,15 @@ class UploadedFileViewSet(viewsets.ModelViewSet):
     serializer_class = UploadedFileSerializer
     parser_classes = (MultiPartParser, FormParser,)  # ファイルアップロードを許可するパーサーを追加
 
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        # レスポンスデータ内のファイル名をデコード
+        for item in response.data:
+            if 'file' in item and isinstance(item['file'], str):
+                item['file'] = unquote(item['file'])
+        response['Content-Type'] = 'application/json; charset=utf-8'
+        return response
+
     def create(self, request, *args, **kwargs):
         # ロガーを取得
         logger = logging.getLogger(__name__)
