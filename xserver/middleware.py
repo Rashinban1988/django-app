@@ -6,6 +6,7 @@ class RestrictMediaAccessMiddleware:
 
     def __call__(self, request):
         # メディアファイルへのリクエストをチェック
+        normalized_path = unquote(request.path)
         if request.path.startswith('/media/'):
             # 許可するドメイン
             allowed_referer = 'https://nextjs14-hvttlnd0g-rashinban1988s-projects.vercel.app'
