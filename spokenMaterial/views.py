@@ -115,11 +115,16 @@ def transcribe_and_save(file_path, uploaded_file_id):
             # 音声の正規化と増幅（音声のボリュームを均一化）
             audio = AudioSegment.from_file(file_path, format=file_extension.replace(".", ""))
             audio = audio.normalize()  # ここで normalize メソッドを使用
-            # ノイズリダクション（音声のノイズを減らす）
-            audio_np = np.array(audio.get_array_of_samples())
-            reduced_noise_audio_np = nr.reduce_noise(y=audio_np, sr=audio.frame_rate)
-            # 音声の感度を調整
-            audio = AudioSegment(reduced_noise_audio_np.tobytes(), frame_rate=audio.frame_rate, sample_width=audio.sample_width, channels=audio.channels)
+            # # ノイズリダクション（音声のノイズを減らす）
+            # audio_np = np.array(audio.get_array_of_samples())
+            # reduced_noise_audio_np = nr.reduce_noise(y=audio_np, sr=audio.frame_rate)
+            # # 音声の感度を調整
+            # audio = AudioSegment(
+            #     reduced_noise_audio_np.tobytes(), # バイト列に変換
+            #     frame_rate=audio.frame_rate,      # サンプリング周波数
+            #     sample_width=audio.sample_width,  # サンプル幅
+            #     channels=audio.channels           # チャンネル数
+            # )
         else:
             raise ValueError("サポートされていない音声形式です。")
     except Exception as e:
