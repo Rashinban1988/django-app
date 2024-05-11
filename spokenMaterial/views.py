@@ -17,7 +17,6 @@ from vosk import KaldiRecognizer, Model
 from .management.commands.transcribe import Command as TranscribeCommand
 from .models import Transcription, UploadedFile
 from .serializers import TranscriptionSerializer, UploadedFileSerializer
-import noisereduce as nr
 
 class UploadedFileViewSet(viewsets.ModelViewSet):
     queryset = UploadedFile.objects.all()
@@ -89,6 +88,13 @@ def handle_uploaded_file(f):
 # def transcribe_and_save_async(file_path, uploaded_file_id):
 def transcribe_and_save(file_path, uploaded_file_id):
     logger = logging.getLogger(__name__)
+
+    try:
+        import noisereduce as nr
+        logger.debug("noisereduce imported successfully.")
+    except Exception as e:
+        logger.error(f"Failed to import noisereduce: {e}")
+
     logger.debug("文字起こし処理がリクエストされました。")
     logger.debug(f"ファイルパス: {file_path}")
 
@@ -106,7 +112,6 @@ def transcribe_and_save(file_path, uploaded_file_id):
         file_path = os.path.join('/code', file_path)
         file_extension = os.path.splitext(file_path)[1].lower()
         if file_extension in [".wav", ".mp3", ".m4a", ".mp4"]:
-            audio = AudioSegment.from_file(file_path, format=file_extension.replace(".", ""))
             # 音声の正規化と増幅（音声のボリュームを均一化）
             audio = AudioSegment.from_file(file_path, format=file_extension.replace(".", ""))
             audio = audio.normalize()  # ここで normalize メソッドを使用
