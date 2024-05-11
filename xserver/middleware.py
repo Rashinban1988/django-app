@@ -1,4 +1,5 @@
 from django.http import HttpResponseForbidden
+from urllib.parse import unquote
 
 class RestrictMediaAccessMiddleware:
     def __init__(self, get_response):
