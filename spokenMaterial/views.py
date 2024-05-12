@@ -38,10 +38,6 @@ class UploadedFileViewSet(viewsets.ModelViewSet):
         logger = logging.getLogger(__name__)
         logger.debug("ファイルアップロードがリクエストされました。")
 
-        # リクエストデータのファイル名をデコード
-        if 'file' in request.data:
-            request.data['file'] = unquote(request.data['file'])
-
         file_serializer = UploadedFileSerializer(data=request.data)
         if file_serializer.is_valid():
             uploaded_file = file_serializer.save() # UploadedFileモデルにファイル情報を保存
