@@ -1,6 +1,6 @@
 amqp==5.2.0
 annotated-types==0.6.0
-anyio==4.3.0
+anyio==3.3.4
 appdirs==1.4.4
 asgiref==3.6.0
 async-timeout==4.0.3
@@ -75,7 +75,7 @@ nbformat==5.10.4
 networkx==3.2.1
 noisereduce==3.0.2
 numba==0.59.0
-numpy==1.26.4
+numpy==1.24.4
 nvidia-cublas-cu12==12.1.3.1
 nvidia-cuda-cupti-cu12==12.1.105
 nvidia-cuda-nvrtc-cu12==12.1.105
@@ -91,8 +91,8 @@ nvidia-nvtx-cu12==12.1.105
 openai==1.28.1
 openai-whisper==20231117
 openpyxl==3.1.2
-packaging==24.0
-pandas==2.2.1
+packaging==23.0
+pandas==1.5.3
 pandocfilters==1.5.1
 parso==0.8.4
 patsy==0.5.3
@@ -134,7 +134,7 @@ regex==2023.12.25
 requests==2.31.0
 rpds-py==0.18.0
 scikit-learn==1.4.2
-scipy==1.13.0
+scipy==1.10.1
 six==1.16.0
 sniffio==1.3.1
 soundfile==0.12.1
