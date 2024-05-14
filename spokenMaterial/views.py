@@ -1,13 +1,16 @@
 import json
 import logging
+from openai import OpenAI
 import os
 import warnings
 import wave
 
 import numpy as np
 from celery import shared_task
+from django.db import transaction
 from django.http import JsonResponse
 from django.views import View
+from dotenv import load_dotenv
 from pydub import AudioSegment
 from rest_framework import status, viewsets
 from rest_framework.parsers import FormParser, MultiPartParser
@@ -18,6 +21,10 @@ from vosk import KaldiRecognizer, Model
 from .management.commands.transcribe import Command as TranscribeCommand
 from .models import Transcription, UploadedFile
 from .serializers import TranscriptionSerializer, UploadedFileSerializer
+
+# 環境変数をロードする
+load_dotenv()
+client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
 class UploadedFileViewSet(viewsets.ModelViewSet):
     queryset = UploadedFile.objects.all()
@@ -118,7 +125,7 @@ def transcribe_and_save(file_path, uploaded_file_id):
         logger.error(f"モデルのロードに失敗しました: {e}")
         return
 
-    # 音声ファイルの読み込み
+    # 音声ファイルの読み込みと調整
     try:
         file_path = os.path.join('/code', file_path)
         file_extension = os.path.splitext(file_path)[1].lower()
@@ -126,7 +133,6 @@ def transcribe_and_save(file_path, uploaded_file_id):
             # 音声の正規化と増幅（音声のボリュームを均一化）
             audio = AudioSegment.from_file(file_path, format=file_extension.replace(".", ""))
             audio = audio.normalize()  # ここで normalize メソッドを使用
-            audio = audio + 20
             # # ノイズリダクション（音声のノイズを減らす）
             # audio_np = np.array(audio.get_array_of_samples())
             # reduced_noise_audio_np = nr.reduce_noise(y=audio_np, sr=audio.frame_rate)
@@ -143,6 +149,7 @@ def transcribe_and_save(file_path, uploaded_file_id):
         logger.error(f"ファイルの読み込みに失敗しました: {e}")
         return
 
+    # 音声ファイルを指定秒数ごとに分割して文字起こし
     try:
         split_interval = 15 * 1000  # ミリ秒単位
         for i, start_time in enumerate(range(0, len(audio), split_interval)):
@@ -174,5 +181,51 @@ def transcribe_and_save(file_path, uploaded_file_id):
                 logger.error(f"文字起こし結果の保存に失敗しました: {serializer_class.errors}")
 
             os.remove(temp_file_path)
+        summary_result = summarize_and_save(uploaded_file_id)
+        if not summary_result:
+            logger.error("文字起こし結果の要約に失敗しました。")
     except Exception as e:
         logger.error(f"文字起こし処理中にエラーが発生しました: {e}")
+
+def summarize_and_save(uploaded_file_id):
+    """
+    文字起こし結果を要約して保存する。
+
+    Args:
+        uploaded_file_id (int): UploadedFileのID
+
+    Returns:
+        bool: 成功した場合はTrue、UploadedFileが見つからない場合はFalse
+    """
+    try:
+        uploaded_file = UploadedFile.objects.get(pk=uploaded_file_id)
+        transcriptions = Transcription.objects.filter(uploaded_file=uploaded_file)
+        full_text = ' '.join(t.text for t in transcriptions)
+        summary_text = summarize_text(full_text)  # この関数は要約アルゴリズムを実装する必要があります。
+
+        with transaction.atomic():
+            uploaded_file.summarization = summary_text
+            uploaded_file.save()
+
+        return True
+    except UploadedFile.DoesNotExist:
+        return False
+
+def summarize_text(text):
+    """
+    テキストを要約する。
+
+    Args:
+        text (str): 要約するテキスト
+
+    Returns:
+        str: 要約されたテキスト
+    """
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": "次の文章を要約してください: " + text},
+        ]
+    )
+    return response.choices[0].message.content
