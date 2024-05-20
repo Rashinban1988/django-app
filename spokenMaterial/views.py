@@ -132,7 +132,7 @@ def transcribe_and_save(file_path, uploaded_file_id):
         if file_extension in [".wav", ".mp3", ".m4a", ".mp4"]:
             # 音声の正規化と増幅（音声のボリュームを均一化）
             audio = AudioSegment.from_file(file_path, format=file_extension.replace(".", ""))
-            audio = audio.normalize()  # ここで normalize メソッドを使用
+            # audio = audio.normalize()  # ここで normalize メソッドを使用
             # # ノイズリダクション（音声のノイズを減らす）
             # audio_np = np.array(audio.get_array_of_samples())
             # reduced_noise_audio_np = nr.reduce_noise(y=audio_np, sr=audio.frame_rate)
