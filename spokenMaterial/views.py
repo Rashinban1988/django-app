@@ -109,6 +109,8 @@ def transcribe_and_save(file_path, uploaded_file_id):
 
     try:
         import noisereduce as nr
+        # ノイズリダクションのパラメータを調整
+        reduced_noise_audio = nr.reduce_noise(y=audio.get_array_of_samples(), sr=audio.frame_rate, n_std_thresh=2, prop_decrease=0.95)
         logger.debug("noisereduce imported successfully.")
     except Exception as e:
         logger.error(f"Failed to import noisereduce: {e}")
@@ -131,20 +133,8 @@ def transcribe_and_save(file_path, uploaded_file_id):
         file_extension = os.path.splitext(file_path)[1].lower()
         if file_extension in [".wav", ".mp3", ".m4a", ".mp4"]:
             # 音声の正規化と増幅（音声のボリュームを均一化）
-            audio = AudioSegment.from_file(file_path, format=file_extension.replace(".", ""))
-            audio = audio.normalize()  # ここで normalize メソッドを使用
-
-            # ノイズリダクション（音声のノイズを減らす）
-            audio_np = np.array(audio.get_array_of_samples())
-            reduced_noise_audio_np = nr.reduce_noise(y=audio_np, sr=audio.frame_rate)
-
-            # 音声の感度を調整
-            audio = AudioSegment(
-                reduced_noise_audio_np.tobytes(), # バイト列に変換
-                frame_rate=audio.frame_rate,      # サンプリング周波数
-                sample_width=audio.sample_width,  # サンプル幅
-                channels=audio.channels           # チャンネル数
-            )
+            audio = AudioSegment.from_file(file_path, format=file_extension.replace(".", ""), frame_rate=16000, sample_width=2)
+            audio = audio.normalize()  # 音声の正規化
         else:
             raise ValueError("サポートされていない音声形式です。")
     except Exception as e:
@@ -158,31 +148,44 @@ def transcribe_and_save(file_path, uploaded_file_id):
             end_time = min(start_time + split_interval, len(audio))
             split_audio = audio[start_time:end_time]
             temp_file_path = f"temp_{i}.wav"
-            split_audio.export(temp_file_path, format="wav")
+            try:
+                split_audio.export(temp_file_path, format="wav")
 
-            with wave.open(temp_file_path, 'rb') as wf:
-                rec = KaldiRecognizer(model, wf.getframerate())
-                while True:
-                    data = wf.readframes(4000)
-                    if len(data) == 0:
-                        break
-                    if rec.AcceptWaveform(data):
-                        pass
+                # ----------------------------------voskの音声分析 はじめ----------------------------------
+                # with wave.open(temp_file_path, 'rb') as wf:
 
-                result = json.loads(rec.FinalResult())
-                transcription_text = result['text'] if 'text' in result else ''
+                    # 分析処理
+                    # rec = KaldiRecognizer(model, wf.getframerate())
+                    # while True:
+                    #     data = wf.readframes(1000)
+                    #     if len(data) == 0:
+                    #         break
+                    #     if rec.AcceptWaveform(data):
+                    #         pass
+                    # result = json.loads(rec.FinalResult())
+                    # transcription_text = result['text'] if 'text' in result else ''
+                # ----------------------------------voskの音声分析 おわり----------------------------------
 
-            serializer_class = TranscriptionSerializer(data={
-                "start_time": start_time / 1000,  # 秒単位に変換
-                "text": transcription_text,
-                "uploaded_file": uploaded_file_id,
-            })
-            if serializer_class.is_valid():
-                serializer_class.save()
-            else:
-                logger.error(f"文字起こし結果の保存に失敗しました: {serializer_class.errors}")
+                # ----------------------------------open ai whisper1 音声分析 はじめ-----------------------
+                transcription = client.audio.transcriptions.create(
+                    model = "whisper-1",
+                    file = open(temp_file_path, "rb"),
+                )
+                transcription_text = transcription.text
+                # ----------------------------------open ai whisper1 音声分析 おわり-----------------------
 
-            os.remove(temp_file_path)
+                # 分析処理終了
+                serializer_class = TranscriptionSerializer(data={
+                    "start_time": start_time / 1000,
+                    "text": transcription_text,
+                    "uploaded_file": uploaded_file_id,
+                })
+                if serializer_class.is_valid():
+                    serializer_class.save()
+                else:
+                    logger.error(f"文字起こし結果の保存に失敗しました: {serializer_class.errors}")
+            finally:
+                os.remove(temp_file_path)
         summary_result = summarize_and_save(uploaded_file_id)
         if not summary_result:
             logger.error("文字起こし結果の要約に失敗しました。")
