@@ -2,6 +2,7 @@ import json
 import logging
 from openai import OpenAI
 import os
+import time
 import warnings
 import wave
 
@@ -174,6 +175,8 @@ def transcribe_and_save(file_path, uploaded_file_id):
                 )
                 transcription_text = transcription.text
                 all_transcription_text += transcription_text
+                # API呼び出し後に待機時間を追加
+                time.sleep(0.7)  # 1分間に100回の制限を考慮して0.7秒待機（85回）
                 # ----------------------------------open ai whisper1 音声分析 おわり-----------------------
 
                 # 分析処理終了
