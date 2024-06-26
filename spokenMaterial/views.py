@@ -144,6 +144,7 @@ def transcribe_and_save(file_path, uploaded_file_id):
     # 音声ファイルを指定秒数ごとに分割して文字起こし
     try:
         split_interval = 15 * 1000  # ミリ秒単位
+        all_transcription_text = ""
         for i, start_time in enumerate(range(0, len(audio), split_interval)):
             end_time = min(start_time + split_interval, len(audio))
             split_audio = audio[start_time:end_time]
@@ -172,6 +173,7 @@ def transcribe_and_save(file_path, uploaded_file_id):
                     file = open(temp_file_path, "rb"),
                 )
                 transcription_text = transcription.text
+                all_transcription_text += transcription_text
                 # ----------------------------------open ai whisper1 音声分析 おわり-----------------------
 
                 # 分析処理終了
@@ -186,13 +188,13 @@ def transcribe_and_save(file_path, uploaded_file_id):
                     logger.error(f"文字起こし結果の保存に失敗しました: {serializer_class.errors}")
             finally:
                 os.remove(temp_file_path)
-        summary_result = summarize_and_save(uploaded_file_id)
+        summary_result = summarize_and_save(uploaded_file_id, all_transcription_text)
         if not summary_result:
             logger.error("文字起こし結果の要約に失敗しました。")
     except Exception as e:
         logger.error(f"文字起こし処理中にエラーが発生しました: {e}")
 
-def summarize_and_save(uploaded_file_id):
+def summarize_and_save(uploaded_file_id, all_transcription_text):
     """
     文字起こし結果を要約して保存する。
 
@@ -204,9 +206,7 @@ def summarize_and_save(uploaded_file_id):
     """
     try:
         uploaded_file = UploadedFile.objects.get(pk=uploaded_file_id)
-        transcriptions = Transcription.objects.filter(uploaded_file=uploaded_file)
-        full_text = ' '.join(t.text for t in transcriptions)
-        summary_text = summarize_text(full_text)  # この関数は要約アルゴリズムを実装する必要があります。
+        summary_text = summarize_text(all_transcription_text)  # この関数は要約アルゴリズムを実装する必要があります。
 
         with transaction.atomic():
             uploaded_file.summarization = summary_text
