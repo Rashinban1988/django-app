@@ -191,9 +191,9 @@ def transcribe_and_save(file_path, uploaded_file_id):
                     logger.error(f"文字起こし結果の保存に失敗しました: {serializer_class.errors}")
             finally:
                 os.remove(temp_file_path)
-        summary_result = summarize_and_save(uploaded_file_id, all_transcription_text)
-        if not summary_result:
-            logger.error("文字起こし結果の要約に失敗しました。")
+        # summary_result = summarize_and_save(uploaded_file_id, all_transcription_text)
+        # if not summary_result:
+        #     logger.error("文字起こし結果の要約に失敗しました。")
     except Exception as e:
         logger.error(f"文字起こし処理中にエラーが発生しました: {e}")
 
